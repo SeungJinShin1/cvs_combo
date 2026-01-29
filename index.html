@@ -1,14 +1,78 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘의 편의점 꿀조합</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+    <div id="app">
+        <header>
+            <h1>오늘의 편의점 꿀조합</h1>
+            <p class="slogan">"0원으로 즐기는 미슐랭, 편의점 오마카세"</p>
+        </header>
+
+        <main>
+            <!-- Step 1: 편의점 선택 -->
+            <section id="step1" class="step">
+                <h2>어디 편의점 앞이야?</h2>
+                <div class="options">
+                    <button class="store-btn" data-store="GS25">
+                        <img src="https://firebasestorage.googleapis.com/v0/b/project-311139634591142533.appspot.com/o/1_GS25.png?alt=media&token=8183d5a1-722a-433b-821f-c6827d427670" alt="GS25 로고">
+                    </button>
+                    <button class="store-btn" data-store="CU">
+                        <img src="https://firebasestorage.googleapis.com/v0/b/project-311139634591142533.appspot.com/o/2_CU.png?alt=media&token=23b40f2f-38a4-4a0b-b384-5d554a39b360" alt="CU 로고">
+                    </button>
+                    <button class="store-btn" data-store="세븐일레븐">
+                        <img src="https://firebasestorage.googleapis.com/v0/b/project-311139634591142533.appspot.com/o/3_7ELEVEN.png?alt=media&token=143f65ac-1ac0-4592-8051-ae140c115c54" alt="세븐일레븐 로고">
+                    </button>
+                    <button class="store-btn" data-store="이마트24">
+                        <img src="https://firebasestorage.googleapis.com/v0/b/project-311139634591142533.appspot.com/o/4_EMART24.png?alt=media&token=4873998f-d125-4556-a19f-7da6d89551c7" alt="이마트24 로고">
+                    </button>
+                </div>
+            </section>
+
+            <!-- Step 2: 기분 선택 -->
+            <section id="step2" class="step hidden">
+                <h2>지금 상태가 어때?</h2>
+                <div class="options-grid">
+                    <button class="mood-btn" data-mood="stress">🔥 스트레스 만땅</button>
+                    <button class="mood-btn" data-mood="drink">🍺 퇴근길 혼술</button>
+                    <button class="mood-btn" data-mood="hangover">🍜 해장이 시급해</button>
+                    <button class="mood-btn" data-mood="sugar">🍰 당 떨어짐</button>
+                    <button class="mood-btn" data-mood="diet">💪 나름 다이어트</button>
+                </div>
+            </section>
+
+            <!-- Step 3: 로딩 -->
+            <section id="loading" class="step hidden">
+                <div class="loading-spinner"></div>
+                <p id="loading-text">AI가 유통기한 확인 중...</p>
+            </section>
+
+            <!-- Step 4: 결과 -->
+            <section id="result" class="step hidden">
+                <div class="result-card">
+                    <h2 id="result-title"></h2>
+                    <p id="result-comment"></p>
+                    <div class="receipt">
+                        <div class="receipt-header">영수증</div>
+                        <ul id="result-ingredients"></ul>
+                        <div class="receipt-footer">
+                            <span>총 금액</span>
+                            <span id="result-price"></span>
+                        </div>
+                    </div>
+                    <div class="recipe">
+                        <h3>🧑‍🍳 AI 알바생의 비밀 레시피</h3>
+                        <p id="result-recipe"></p>
+                    </div>
+                </div>
+                <button id="retry-btn">다시 추천받기</button>
+            </section>
+        </main>
+    </div>
+    <script src="main.js"></script>
 </body>
 </html>
