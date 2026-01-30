@@ -2,22 +2,34 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebas
 import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// Firebase 설정 (필요시 주석 해제하여 사용)
-// const firebaseConfig = JSON.parse(__firebase_config);
-// const appId = typeof __app_id !== 'undefined' ? __app_id : 'cvs-omakase';
+// [중요] Firebase 설정
+// Cloudflare 배포 환경에서는 __firebase_config 변수가 없을 수 있습니다.
+// 만약 배포 후 저장 기능이 안 된다면, 아래 else 부분의 객체에 
+// Firebase Console > Project Settings의 실제 설정값을 채워넣으세요.
+const firebaseConfig = typeof __firebase_config !== 'undefined' 
+    ? JSON.parse(__firebase_config) 
+    : {
+        apiKey: "YOUR_API_KEY_FROM_FIREBASE_CONSOLE",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
+        messagingSenderId: "SENDER_ID",
+        appId: "APP_ID"
+    };
 
-// const app = initializeApp(firebaseConfig);
-// const auth = getAuth(app);
-// const db = getFirestore(app);
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'cvs-omakase';
 
-// [수정됨] 클라이언트 사이드 API 키 제거
-// 브라우저에서는 키를 관리하지 않고, Cloudflare Functions(/recommend)가 처리합니다.
+// Firebase 초기화
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 let user = null;
 let currentBrand = '';
 let currentBudget = 3000;
 let currentResult = null;
 
+// 화면 전환 함수
 window.goToStep = (step) => {
     document.querySelectorAll('.step-container').forEach(el => el.classList.add('hidden'));
     const target = document.getElementById(isNaN(step) ? `step-${step}` : `step-${step}`);
@@ -27,17 +39,11 @@ window.goToStep = (step) => {
 window.selectBrand = (brand) => { currentBrand = brand; goToStep('budget'); };
 window.selectBudget = (budget) => { currentBudget = budget; goToStep(2); };
 
-// [수정됨] 직접 호출하던 fetchWithBackoff 함수는 더 이상 필요하지 않아 삭제하거나,
-// 나중에 다른 용도로 쓸 수 있게 놔둘 수 있습니다. (여기서는 간결함을 위해 제거하고 직접 호출합니다)
-
+// AI 추천 생성 함수 (Cloudflare Functions 연동)
 window.generateOmakase = async (mood) => {
-    // [수정됨] API 키 확인 로직 제거 (서버가 확인하므로)
-    
     goToStep('loading');
 
     try {
-        // [핵심 변경] 구글 API 직접 호출 -> 내 Cloudflare 서버(/recommend)로 요청
-        // API 키는 서버(functions/recommend.js)에만 숨겨져 있어 안전합니다.
         const response = await fetch('/recommend', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -50,24 +56,16 @@ window.generateOmakase = async (mood) => {
 
         const data = await response.json();
 
-        // 서버에서 에러가 발생했다면(키 없음 등) 예외 처리
         if (!response.ok) {
             throw new Error(data.error || "메뉴 추천을 가져오는데 실패했습니다.");
         }
 
-        // [디버깅] 실제 데이터 구조 확인을 위해 로그 출력 (개발자 도구 콘솔에서 확인 가능)
-        console.log("AI Response Data:", data);
-
-        // [안전장치 추가] candidates 배열이 존재하는지 확인
-        // 구글 API가 에러를 반환했거나(키 만료 등), 안전 필터로 응답을 거부했을 경우 candidates가 없을 수 있음
+        // 데이터 유효성 검사
         if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-            // 에러 메시지가 API 응답에 포함되어 있다면 그 내용을 사용
             const errorMsg = data.error ? data.error.message : "AI가 적절한 답변을 생성하지 못했습니다.";
             throw new Error(`AI 응답 오류: ${errorMsg}`);
         }
 
-        // Gemini API 응답 구조에서 텍스트 결과만 추출하여 파싱
-        // (functions/recommend.js가 그대로 반환해준 구조)
         const resultText = data.candidates[0].content.parts[0].text;
         const result = JSON.parse(resultText);
         
@@ -76,12 +74,12 @@ window.generateOmakase = async (mood) => {
 
     } catch (error) {
         console.error("Error:", error);
-        // 에러 메시지를 사용자에게 알림
         alert(`알바생이 지금 좀 바쁘네요! 사유: ${error.message}`);
         goToStep(2);
     }
 };
 
+// 결과 화면 표시 함수
 function displayResult(res) {
     document.getElementById('res-title').innerText = res.combo_name;
     document.getElementById('res-brand').innerText = `Store: ${currentBrand}`;
@@ -93,47 +91,116 @@ function displayResult(res) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Firebase 관련 로직 (필요시 주석 해제)
-/*
+// [주석 해제됨 & 보강됨] Firebase 인증 초기화
 const initAuth = async () => {
-    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-        await signInWithCustomToken(auth, __initial_auth_token);
-    } else {
-        await signInAnonymously(auth);
+    try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+            await signInAnonymously(auth);
+        }
+    } catch (error) {
+        console.error("인증 실패:", error);
     }
 };
 
-onAuthStateChanged(auth, (u) => { if (u) { user = u; loadFavorites(); } });
+// 인증 상태 감지 및 데이터 로드
+onAuthStateChanged(auth, (u) => { 
+    if (u) { 
+        user = u; 
+        loadFavorites(); 
+    } 
+});
 
+// [주석 해제됨] 데이터 저장 함수
 async function saveToFavorites() {
-    if (!user || !currentResult) return;
-    const favCol = collection(db, 'artifacts', appId, 'users', user.uid, 'favorites');
-    await addDoc(favCol, { ...currentResult, store_brand: currentBrand, savedAt: Date.now() });
-    alert("저장되었습니다!");
+    if (!user) {
+        alert("로그인 정보를 확인 중입니다. 잠시 후 다시 시도해주세요.");
+        return;
+    }
+    if (!currentResult) {
+        alert("저장할 추천 결과가 없습니다.");
+        return;
+    }
+    
+    try {
+        const favCol = collection(db, 'artifacts', appId, 'users', user.uid, 'favorites');
+        await addDoc(favCol, { 
+            ...currentResult, 
+            store_brand: currentBrand, 
+            savedAt: Date.now() 
+        });
+        alert("나의 오마카세 리스트에 저장되었습니다!");
+    } catch (e) {
+        console.error("Save Error:", e);
+        alert("저장에 실패했습니다. Firebase 설정을 확인해주세요.");
+    }
 }
 
+// [주석 해제됨 & 정렬 추가] 데이터 불러오기 함수
 function loadFavorites() {
     if (!user) return;
     const favCol = collection(db, 'artifacts', appId, 'users', user.uid, 'favorites');
+    
     onSnapshot(favCol, (snapshot) => {
         const list = document.getElementById('favorites-list');
-        document.getElementById('fav-count').innerText = snapshot.size;
-        list.innerHTML = snapshot.empty ? '<p class="text-gray-600 text-center py-5 text-sm">저장된 조합이 없습니다.</p>' : '';
-        snapshot.forEach(docSnap => {
-            const data = docSnap.data();
-            const card = document.createElement('div');
-            card.className = 'bg-slate-800 p-4 rounded-xl flex justify-between items-center border-l-4 border-orange-500';
-            card.innerHTML = `<div><p class="font-bold text-sm">${data.combo_name}</p><p class="text-[10px] text-gray-400">${data.store_brand}</p></div>
-                                      <div class="flex gap-2"><button class="v-btn text-xs bg-slate-700 px-3 py-1 rounded">보기</button><button class="d-btn text-xs text-red-500">삭제</button></div>`;
-            list.appendChild(card);
-            card.querySelector('.v-btn').onclick = () => { currentBrand = data.store_brand; displayResult(data); };
-            card.querySelector('.d-btn').onclick = () => deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'favorites', docSnap.id));
+        const countEl = document.getElementById('fav-count');
+        
+        if (countEl) countEl.innerText = snapshot.size;
+        if (!list) return;
+
+        if (snapshot.empty) {
+            list.innerHTML = '<p class="text-gray-600 text-center py-5 text-sm">저장된 조합이 없습니다.</p>';
+            return;
+        }
+
+        // 최신순 정렬 (savedAt 내림차순)
+        const items = [];
+        snapshot.forEach(doc => {
+            items.push({ id: doc.id, ...doc.data() });
         });
-    }, (err) => console.error(err));
+        items.sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+
+        list.innerHTML = '';
+        
+        items.forEach(data => {
+            const card = document.createElement('div');
+            card.className = 'bg-slate-800 p-4 rounded-xl flex justify-between items-center border-l-4 border-orange-500 hover:bg-slate-700 transition-colors cursor-pointer';
+            card.innerHTML = `
+                <div class="flex-1">
+                    <p class="font-bold text-sm text-white">${data.combo_name || '이름 없음'}</p>
+                    <p class="text-[10px] text-gray-400">${data.store_brand || '-'} • ₩${(data.total_price_estimate || 0).toLocaleString()}</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="v-btn text-xs bg-slate-600 hover:bg-slate-500 text-white px-3 py-1 rounded transition-colors">보기</button>
+                    <button class="d-btn text-xs text-red-400 hover:text-red-300 transition-colors">삭제</button>
+                </div>`;
+            
+            list.appendChild(card);
+            
+            // 보기 버튼
+            card.querySelector('.v-btn').onclick = (e) => { 
+                e.stopPropagation(); 
+                currentBrand = data.store_brand; 
+                displayResult(data); 
+            };
+            
+            // 삭제 버튼
+            card.querySelector('.d-btn').onclick = async (e) => { 
+                e.stopPropagation(); 
+                if(confirm('정말 삭제하시겠습니까?')) {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'favorites', data.id));
+                }
+            };
+        });
+    }, (err) => console.error("데이터 로드 오류:", err));
 }
 
-if (document.getElementById('save-to-favorites')) {
-    document.getElementById('save-to-favorites').onclick = saveToFavorites;
+// 저장 버튼 이벤트 연결
+const saveBtn = document.getElementById('save-to-favorites');
+if (saveBtn) {
+    saveBtn.onclick = saveToFavorites;
 }
-// initAuth(); 
-*/
+
+// 앱 시작 시 인증 초기화 실행
+initAuth();
