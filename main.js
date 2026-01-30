@@ -28,6 +28,7 @@ let user = null;
 let currentBrand = '';
 let currentBudget = 3000;
 let currentResult = null;
+const STORAGE_KEY = 'cvs_omakase_list'; // 로컬 스토리지 저장 키
 
 // 화면 전환 함수
 window.goToStep = (step) => {
@@ -44,6 +45,7 @@ window.generateOmakase = async (mood) => {
     goToStep('loading');
 
     try {
+        // [보안] API 키는 서버(functions/recommend.js)에 숨겨져 있습니다.
         const response = await fetch('/recommend', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -60,7 +62,6 @@ window.generateOmakase = async (mood) => {
             throw new Error(data.error || "메뉴 추천을 가져오는데 실패했습니다.");
         }
 
-        // 데이터 유효성 검사
         if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
             const errorMsg = data.error ? data.error.message : "AI가 적절한 답변을 생성하지 못했습니다.";
             throw new Error(`AI 응답 오류: ${errorMsg}`);
@@ -91,116 +92,95 @@ function displayResult(res) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// [주석 해제됨 & 보강됨] Firebase 인증 초기화
-const initAuth = async () => {
-    try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-            await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-            await signInAnonymously(auth);
-        }
-    } catch (error) {
-        console.error("인증 실패:", error);
-    }
-};
-
-// 인증 상태 감지 및 데이터 로드
-onAuthStateChanged(auth, (u) => { 
-    if (u) { 
-        user = u; 
-        loadFavorites(); 
-    } 
-});
-
-// [주석 해제됨] 데이터 저장 함수
-async function saveToFavorites() {
-    if (!user) {
-        alert("로그인 정보를 확인 중입니다. 잠시 후 다시 시도해주세요.");
-        return;
-    }
+// [핵심 변경] 데이터 저장 함수 (큐 구조: 신규 추가 시 오래된 것 자동 삭제)
+function saveToFavorites() {
     if (!currentResult) {
         alert("저장할 추천 결과가 없습니다.");
         return;
     }
-    
-    try {
-        const favCol = collection(db, 'artifacts', appId, 'users', user.uid, 'favorites');
-        await addDoc(favCol, { 
-            ...currentResult, 
-            store_brand: currentBrand, 
-            savedAt: Date.now() 
-        });
-        alert("나의 오마카세 리스트에 저장되었습니다!");
-    } catch (e) {
-        console.error("Save Error:", e);
-        alert("저장에 실패했습니다. Firebase 설정을 확인해주세요.");
+
+    // 1. 기존 데이터 가져오기 (없으면 빈 배열)
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    let list = savedData ? JSON.parse(savedData) : [];
+
+    // 2. 새 항목 객체 생성
+    const newItem = {
+        id: Date.now(), // 고유 ID
+        ...currentResult,
+        store_brand: currentBrand,
+        savedAt: Date.now()
+    };
+
+    // 3. 리스트 맨 앞에 추가 (Unshift)
+    list.unshift(newItem);
+
+    // 4. 3개 초과 시 뒤(가장 오래된 것)에서부터 삭제 (Slice)
+    if (list.length > 3) {
+        list = list.slice(0, 3);
     }
-}
 
-// [주석 해제됨 & 정렬 추가] 데이터 불러오기 함수
-function loadFavorites() {
-    if (!user) return;
-    const favCol = collection(db, 'artifacts', appId, 'users', user.uid, 'favorites');
+    // 5. 다시 로컬 스토리지에 저장
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
     
-    onSnapshot(favCol, (snapshot) => {
-        const list = document.getElementById('favorites-list');
-        const countEl = document.getElementById('fav-count');
-        
-        if (countEl) countEl.innerText = snapshot.size;
-        if (!list) return;
-
-        if (snapshot.empty) {
-            list.innerHTML = '<p class="text-gray-600 text-center py-5 text-sm">저장된 조합이 없습니다.</p>';
-            return;
-        }
-
-        // 최신순 정렬 (savedAt 내림차순)
-        const items = [];
-        snapshot.forEach(doc => {
-            items.push({ id: doc.id, ...doc.data() });
-        });
-        items.sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
-
-        list.innerHTML = '';
-        
-        items.forEach(data => {
-            const card = document.createElement('div');
-            card.className = 'bg-slate-800 p-4 rounded-xl flex justify-between items-center border-l-4 border-orange-500 hover:bg-slate-700 transition-colors cursor-pointer';
-            card.innerHTML = `
-                <div class="flex-1">
-                    <p class="font-bold text-sm text-white">${data.combo_name || '이름 없음'}</p>
-                    <p class="text-[10px] text-gray-400">${data.store_brand || '-'} • ₩${(data.total_price_estimate || 0).toLocaleString()}</p>
-                </div>
-                <div class="flex gap-2">
-                    <button class="v-btn text-xs bg-slate-600 hover:bg-slate-500 text-white px-3 py-1 rounded transition-colors">보기</button>
-                    <button class="d-btn text-xs text-red-400 hover:text-red-300 transition-colors">삭제</button>
-                </div>`;
-            
-            list.appendChild(card);
-            
-            // 보기 버튼
-            card.querySelector('.v-btn').onclick = (e) => { 
-                e.stopPropagation(); 
-                currentBrand = data.store_brand; 
-                displayResult(data); 
-            };
-            
-            // 삭제 버튼
-            card.querySelector('.d-btn').onclick = async (e) => { 
-                e.stopPropagation(); 
-                if(confirm('정말 삭제하시겠습니까?')) {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'favorites', data.id));
-                }
-            };
-        });
-    }, (err) => console.error("데이터 로드 오류:", err));
+    // UI 갱신 및 알림
+    loadFavorites();
+    alert("저장되었습니다! (최대 3개까지 자동 관리됩니다)");
 }
 
-// 저장 버튼 이벤트 연결
+// [핵심 변경] 데이터 불러오기 함수 (삭제 버튼 제거됨)
+function loadFavorites() {
+    const listEl = document.getElementById('favorites-list');
+    const countEl = document.getElementById('fav-count');
+    
+    // 로컬 스토리지에서 데이터 읽기
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    const list = savedData ? JSON.parse(savedData) : [];
+
+    if (countEl) countEl.innerText = list.length;
+    if (!listEl) return;
+
+    if (list.length === 0) {
+        listEl.innerHTML = '<p class="text-gray-600 text-center py-5 text-sm">저장된 조합이 없습니다.</p>';
+        return;
+    }
+
+    listEl.innerHTML = '';
+    
+    list.forEach(data => {
+        const card = document.createElement('div');
+        // 디자인: 클릭 가능하게 커서 포인터 추가 및 삭제 버튼 공간 제거
+        card.className = 'bg-slate-800 p-4 rounded-xl flex justify-between items-center border-l-4 border-orange-500 hover:bg-slate-700 transition-colors cursor-pointer';
+        card.innerHTML = `
+            <div class="flex-1">
+                <p class="font-bold text-sm text-white">${data.combo_name || '이름 없음'}</p>
+                <p class="text-[10px] text-gray-400">${data.store_brand || '-'} • ₩${(data.total_price_estimate || 0).toLocaleString()}</p>
+            </div>
+            <div>
+                <button class="v-btn text-xs bg-slate-600 hover:bg-slate-500 text-white px-3 py-2 rounded transition-colors">보기</button>
+            </div>`;
+        
+        listEl.appendChild(card);
+        
+        // 카드 전체 클릭 시 보기 실행
+        card.onclick = () => {
+            currentBrand = data.store_brand; 
+            displayResult(data);
+        };
+
+        // 보기 버튼 클릭 시 (이벤트 버블링 방지 및 실행)
+        card.querySelector('.v-btn').onclick = (e) => { 
+            e.stopPropagation(); 
+            currentBrand = data.store_brand; 
+            displayResult(data); 
+        };
+    });
+}
+
+// 이벤트 리스너 연결
 const saveBtn = document.getElementById('save-to-favorites');
 if (saveBtn) {
     saveBtn.onclick = saveToFavorites;
 }
 
-// 앱 시작 시 인증 초기화 실행
-initAuth();
+// 페이지 로드 시 저장된 목록 불러오기
+loadFavorites();
