@@ -1,15 +1,27 @@
+console.log("main.js loaded");
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // Global Variables
 const apiKey = ""; // Gemini API Key (Automatically provided by environment)
-const firebaseConfig = JSON.parse(__firebase_config);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'cvs-omakase';
+let app, auth, db;
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+try {
+    if (typeof __firebase_config !== 'undefined') {
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'cvs-omakase';
+        
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+        console.log("Firebase initialized successfully.");
+    } else {
+        console.error("Firebase config is not defined. App will run without Firebase features.");
+    }
+} catch (error) {
+    console.error("Error initializing Firebase:", error);
+}
 
 let user = null;
 let currentBrand = '';
@@ -25,6 +37,7 @@ window.goToStep = (stepNumber) => {
 };
 
 window.selectBrand = (brand) => {
+    console.log("Brand selected:", brand);
     currentBrand = brand;
     goToStep(2);
 };
