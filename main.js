@@ -4,7 +4,7 @@ import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged }
 import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // Global Variables
-const apiKey = ""; // Gemini API Key (Automatically provided by environment)
+const apiKey = "AIzaSyCv4GGaKaJ99Jh_gkpSSUEiwHsv7DDr95o"; // Gemini API Key (Automatically provided by environment)
 let app, auth, db;
 
 try {
