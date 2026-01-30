@@ -1,208 +1,181 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
-    const steps = {
-        step1: document.getElementById('step1'),
-        step2: document.getElementById('step2'),
-        loading: document.getElementById('loading'),
-        result: document.getElementById('result'),
-    };
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const storeButtons = document.querySelectorAll('.store-btn');
-    const moodButtons = document.querySelectorAll('.mood-btn');
-    const retryButton = document.getElementById('retry-btn');
-    const loadingText = document.getElementById('loading-text');
-    const resultCard = document.querySelector('.result-card'); // Added for animation
+// Global Variables
+const apiKey = ""; // Gemini API Key (Automatically provided by environment)
+const firebaseConfig = JSON.parse(__firebase_config);
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'cvs-omakase';
 
-    // User choices
-    let userChoices = {
-        store: '',
-        mood: ''
-    };
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-    // --- Mock Data (AI Simulation) ---
-    const mockApi = {
-        stress: [
-            {
-                combo_name: "치즈폭포 불닭 정식",
-                store_brand: "GS25",
-                mood_tag: "스트레스 만땅",
-                total_price_estimate: 6800,
-                calorie_estimate: 1200, // 임시 값
-                items: [
-                    { name: "불닭볶음면", category: "Main", price: 1800 },
-                    { name: "스트링치즈", category: "Topping", price: 1500 },
-                    { name: "비엔나 소시지", category: "Topping", price: 2500 },
-                    { name: "쿨피스", category: "Drink", price: 1000 },
-                ],
-                recipe_steps: [
-                    "1. 불닭볶음면을 조리법대로 익힌 후 물을 조금만 남기고 버립니다.",
-                    "2. 스트링치즈와 소시지를 잘라 넣고 소스를 부어 섞어줍니다.",
-                    "3. 전자레인지에 1분 30초 돌려 치즈를 완전히 녹이면 완성! 쿨피스로 매운맛을 달래주세요."
-                ],
-                ai_comment: "이거 먹으면 내일 얼굴 붓지만 후회는 없다."
-            }
-        ],
-        drink: [
-            {
-                combo_name: "공화춘의 눈물 세트",
-                store_brand: "CU",
-                mood_tag: "퇴근길 혼술",
-                total_price_estimate: 15900,
-                calorie_estimate: 1500, // 임시 값
-                items: [
-                    { name: "공화춘 짜장", category: "Main", price: 1900 },
-                    { name: "삶은계란 2입", category: "Side", price: 2000 },
-                    { name: "캔맥주 (4캔)", category: "Drink", price: 12000 },
-                ],
-                recipe_steps: [
-                    "1. 공화춘 짜장면을 맛있게 조리합니다.",
-                    "2. 삶은계란 하나는 반으로 잘라 짜장면 위에 올립니다.",
-                    "3. 남은 계란과 함께 시원한 캔맥주를 곁들여 하루의 피로를 날려보세요."
-                ],
-                ai_comment: "퇴근길의 고단함, 이 한 잔으로 씻어내리."
-            }
-        ],
-        hangover: [
-            {
-                combo_name: "속풀리는 황태해장국밥",
-                store_brand: "세븐일레븐",
-                mood_tag: "해장이 시급해",
-                total_price_estimate: 6800,
-                calorie_estimate: 800, // 임시 값
-                items: [
-                    { name: "컵누들 우동맛", category: "Main", price: 1200 },
-                    { name: "감동란 1개", category: "Side", price: 1100 },
-                    { name: "북어채 한 줌", category: "Topping", price: 3000 },
-                    { name: "헛개수", category: "Drink", price: 1500 },
-                ],
-                recipe_steps: [
-                    "1. 컵누들에 뜨거운 물과 북어채를 함께 넣고 3분간 익힙니다.",
-                    "2. 뚜껑을 열고 감동란을 쪼개 넣습니다.",
-                    "3. 시원한 헛개수와 함께 먹으면 숙취 해소에 최고입니다."
-                ],
-                ai_comment: "어제의 나는 잊어라. 새로운 아침을 맞이하는 의식."
-            }
-        ],
-        sugar: [
-             {
-                combo_name: "극강의 당 충전 세트",
-                store_brand: "이마트24",
-                mood_tag: "당 떨어짐",
-                total_price_estimate: 6500,
-                calorie_estimate: 1000, // 임시 값
-                items: [
-                    { name: "초코우유 500ml", category: "Drink", price: 1800 },
-                    { name: "티라미수 케이크", category: "Dessert", price: 3500 },
-                    { name: "초코바", category: "Snack", price: 1200 },
-                ],
-                recipe_steps: [
-                    "1. 모든 것을 다 꺼내놓는다.",
-                    "2. 먹는다.",
-                    "3. 행복해진다."
-                ],
-                ai_comment: "혈관에 초코시럽이 흐르는 기분!"
-            }
-        ],
-        diet: [
-            {
-                combo_name: "죄책감 없는 단백질 폭탄",
-                store_brand: "GS25",
-                mood_tag: "나름 다이어트",
-                total_price_estimate: 7500,
-                calorie_estimate: 500, // 임시 값
-                items: [
-                    { name: "훈제 닭가슴살", category: "Main", price: 3800 },
-                    { name: "감동란 2개", category: "Side", price: 2200 },
-                    { name: "아몬드브리즈", category: "Drink", price: 1500 },
-                ],
-                recipe_steps: [
-                    "1. 닭가슴살을 전자레인지에 30초 데웁니다.",
-                    "2. 감동란과 함께 먹으며 단백질을 보충합니다.",
-                    "3. 마무리는 깔끔한 아몬드브리즈로!"
-                ],
-                ai_comment: "운동 끝나고 먹으면 근손실 걱정 끝!"
-            }
-        ],
-    };
+let user = null;
+let currentBrand = '';
+let currentResult = null;
 
-    const loadingMessages = [
-        "AI가 유통기한 확인 중...",
-        "전자레인지 줄 서는 중...",
-        "사장님 몰래 신상품 스캔 중...",
-        "최상의 조합을 위해 냉장고 뒤지는 중..."
-    ];
+// Step Control
+window.goToStep = (stepNumber) => {
+    document.querySelectorAll('.step-container').forEach(el => el.classList.add('hidden'));
+    if (stepNumber === 1) document.getElementById('step-1').classList.remove('hidden');
+    if (stepNumber === 2) document.getElementById('step-2').classList.remove('hidden');
+    if (stepNumber === 'loading') document.getElementById('step-loading').classList.remove('hidden');
+    if (stepNumber === 'result') document.getElementById('step-result').classList.remove('hidden');
+};
 
-    // --- Functions ---
-    const showStep = (stepName) => {
-        Object.values(steps).forEach(step => step.classList.add('hidden'));
-        if (steps[stepName]) {
-            steps[stepName].classList.remove('hidden');
+window.selectBrand = (brand) => {
+    currentBrand = brand;
+    goToStep(2);
+};
+
+// Loading Messages
+const loadingMessages = [
+    "AI 알바생이 유통기한 확인 중...",
+    "전자레인지 줄 서는 중...",
+    "온수기에 물이 끓는 중...",
+    "결합 할인 카드 찾는 중...",
+    "다른 알바생이랑 레시피 공유 중..."
+];
+
+// Gemini AI Call
+window.generateOmakase = async (mood) => {
+    goToStep('loading');
+    let msgIdx = 0;
+    const msgInterval = setInterval(() => {
+        document.getElementById('loading-text').innerText = loadingMessages[msgIdx % loadingMessages.length];
+        msgIdx++;
+    }, 2000);
+
+    const systemPrompt = `당신은 한국의 편의점(GS25, CU, 세븐일레븐, 이마트24) 제품을 통달한 '편의점 꿀조합 마스터'입니다. 
+    사용자가 선택한 브랜드와 기분(Mood)에 맞춰, 현재 실제로 판매 중인 제품들을 조합해 가장 맛있는 레시피를 제안하세요.
+    조합의 이름은 SNS에서 유행할 법한 재치 있는 이름으로 지으세요. 말투는 친근하고 유머러스한 '20대 편의점 알바생' 톤을 유지하세요.
+    결과는 반드시 아래 JSON 형식으로만 응답하세요:
+    {
+        "combo_name": "String",
+        "store_brand": "${currentBrand}",
+        "mood_tag": "${mood}",
+        "total_price_estimate": Number,
+        "items": [{"name": String, "price": Number}],
+        "recipe_steps": [String],
+        "ai_comment": String
+    }`;
+
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: `브랜드: ${currentBrand}, 오늘의 기분: ${mood}` }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: { responseMimeType: "application/json" }
+            })
+        });
+
+        const data = await response.json();
+        const result = JSON.parse(data.candidates[0].content.parts[0].text);
+        currentResult = result;
+        displayResult(result);
+    } catch (error) {
+        console.error("AI 생성 실패:", error);
+        alert("알바생이 지금 바쁘네요... 다시 시도해주세요!");
+        goToStep(2);
+    } finally {
+        clearInterval(msgInterval);
+    }
+};
+
+function displayResult(res) {
+    document.getElementById('res-title').innerText = res.combo_name;
+    document.getElementById('res-brand').innerText = `Store: ${res.store_brand}`;
+    document.getElementById('res-price').innerText = `₩ ${res.total_price_estimate.toLocaleString()}`;
+    document.getElementById('res-comment').innerText = res.ai_comment;
+
+    const itemsList = document.getElementById('res-items');
+    itemsList.innerHTML = res.items.map(item => `
+        <div class="flex justify-between">
+            <span>- ${item.name}</span>
+            <span>${item.price.toLocaleString()}</span>
+        </div>
+    `).join('');
+
+    const recipeList = document.getElementById('res-recipe');
+    recipeList.innerHTML = res.recipe_steps.map(step => `<p>${step}</p>`).join('');
+
+    goToStep('result');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Firestore Logic
+const initAuth = async () => {
+    try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+            await signInAnonymously(auth);
         }
-    };
+    } catch (err) { console.error("Auth failed", err); }
+};
 
-    const displayResult = (resultData) => {
-        // Populate data
-        document.getElementById('result-title').textContent = resultData.combo_name;
-        document.getElementById('result-comment').textContent = resultData.ai_comment;
-        document.getElementById('result-price').textContent = `${resultData.total_price_estimate.toLocaleString()}원`;
-        document.getElementById('result-recipe').innerHTML = resultData.recipe_steps.map(step => `<span>${step}</span>`).join('<br>');
-
-        const ingredientsList = document.getElementById('result-ingredients');
-        ingredientsList.innerHTML = '';
-        resultData.items.forEach(item => {
-            const li = document.createElement('li');
-            li.innerHTML = `<span>${item.name}</span><span>${item.price.toLocaleString()}원</span>`;
-            ingredientsList.appendChild(li);
-        });
-
-        // Trigger animation
-        showStep('result');
-        // We use a short delay to ensure the element is visible before adding the class
-        setTimeout(() => {
-            resultCard.classList.add('is-printing');
-        }, 10);
-    };
-
-    const startLoading = () => {
-        showStep('loading');
-        let messageIndex = 0;
-        loadingText.textContent = loadingMessages[messageIndex];
-        const interval = setInterval(() => {
-            messageIndex = (messageIndex + 1) % loadingMessages.length;
-            loadingText.textContent = loadingMessages[messageIndex];
-        }, 1500);
-
-        setTimeout(() => {
-            clearInterval(interval);
-            const results = mockApi[userChoices.mood] || mockApi.stress;
-            const randomResult = results[Math.floor(Math.random() * results.length)];
-            displayResult(randomResult);
-        }, 4000); // 4초 후 결과 표시
-    };
-    
-    const reset = () => {
-        userChoices = { store: '', mood: '' };
-        resultCard.classList.remove('is-printing'); // Remove class for re-animation
-        showStep('step1');
-    };
-
-    // --- Event Listeners ---
-    storeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            userChoices.store = button.dataset.store;
-            showStep('step2');
-        });
-    });
-
-    moodButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            userChoices.mood = button.dataset.mood;
-            startLoading();
-        });
-    });
-
-    retryButton.addEventListener('click', reset);
-    
-    // Initial setup
-    reset();
+onAuthStateChanged(auth, (u) => {
+    if (u) {
+        user = u;
+        loadFavorites();
+    }
 });
+
+async function saveToFavorites() {
+    if (!user || !currentResult) return;
+    try {
+        const favCol = collection(db, 'artifacts', appId, 'users', user.uid, 'favorites');
+        await addDoc(favCol, {
+            ...currentResult,
+            savedAt: Date.now()
+        });
+        alert("저장 완료! '나의 오마카세'에서 확인하세요.");
+    } catch (e) { console.error("Save failed", e); }
+}
+
+function loadFavorites() {
+    if (!user) return;
+    const favCol = collection(db, 'artifacts', appId, 'users', user.uid, 'favorites');
+    onSnapshot(favCol, (snapshot) => {
+        const list = document.getElementById('favorites-list');
+        document.getElementById('fav-count').innerText = snapshot.size;
+        list.innerHTML = '';
+        
+        if (snapshot.empty) {
+            list.innerHTML = '<p class="text-gray-600 text-center py-10 text-sm">아직 저장된 조합이 없습니다.</p>';
+            return;
+        }
+
+        snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            const card = document.createElement('div');
+            card.className = 'bg-slate-800 p-4 rounded-xl flex justify-between items-center border-l-4 border-orange-500';
+            card.innerHTML = `
+                <div>
+                    <p class="font-bold text-sm">${data.combo_name}</p>
+                    <p class="text-[10px] text-gray-400">${data.store_brand} • ₩${data.total_price_estimate.toLocaleString()}</p>
+                </div>
+                <div class="flex gap-2">
+                     <button class="view-btn text-xs bg-slate-700 px-3 py-1 rounded" data-id="${docSnap.id}">보기</button>
+                     <button class="del-btn text-xs text-red-500" data-id="${docSnap.id}">삭제</button>
+                </div>
+            `;
+            list.appendChild(card);
+
+            card.querySelector('.view-btn').onclick = () => {
+                currentResult = data;
+                displayResult(data);
+            };
+            card.querySelector('.del-btn').onclick = async () => {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'favorites', docSnap.id));
+            };
+        });
+    }, (err) => console.error("Snapshot error", err));
+}
+
+document.getElementById('save-to-favorites').onclick = saveToFavorites;
+
+initAuth();

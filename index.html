@@ -3,76 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>오늘의 편의점 꿀조합</title>
+    <title>편의점 오마카세 (CVS Omakase)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div id="app">
-        <header>
-            <h1>오늘의 편의점 꿀조합</h1>
-            <p class="slogan">"0원으로 즐기는 미슐랭, 편의점 오마카세"</p>
+<body class="min-h-screen flex items-center justify-center">
+
+    <div id="app" class="max-w-md mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-purple-500">
+                CVS OMAKASE
+            </h1>
+            <p class="text-gray-400 text-sm mt-1">3천 원으로 즐기는 미슐랭, 편의점 오마카세</p>
         </header>
 
-        <main>
-            <!-- Step 1: 편의점 선택 -->
-            <section id="step1" class="step">
-                <h2>어디 편의점 앞이야?</h2>
-                <div class="options">
-                    <button class="store-btn" data-store="GS25">
-                        <img src="https://firebasestorage.googleapis.com/v0/b/project-311139634591142533.appspot.com/o/1_GS25.png?alt=media&token=8183d5a1-722a-433b-821f-c6827d427670" alt="GS25 로고">
-                    </button>
-                    <button class="store-btn" data-store="CU">
-                        <img src="https://firebasestorage.googleapis.com/v0/b/project-311139634591142533.appspot.com/o/2_CU.png?alt=media&token=23b40f2f-38a4-4a0b-b384-5d554a39b360" alt="CU 로고">
-                    </button>
-                    <button class="store-btn" data-store="세븐일레븐">
-                        <img src="https://firebasestorage.googleapis.com/v0/b/project-311139634591142533.appspot.com/o/3_7ELEVEN.png?alt=media&token=143f65ac-1ac0-4592-8051-ae140c115c54" alt="세븐일레븐 로고">
-                    </button>
-                    <button class="store-btn" data-store="이마트24">
-                        <img src="https://firebasestorage.googleapis.com/v0/b/project-311139634591142533.appspot.com/o/4_EMART24.png?alt=media&token=4873998f-d125-4556-a19f-7da6d89551c7" alt="이마트24 로고">
-                    </button>
-                </div>
-            </section>
+        <!-- Step 1: Brand Selection -->
+        <div id="step-1" class="step-container">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                <span class="bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
+                어디 편의점 앞이야?
+            </h2>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="selectBrand('GS25')" class="brand-btn bg-slate-800 p-6 rounded-2xl border-2 border-transparent hover:border-blue-400 transition-all flex flex-col items-center gap-2">
+                    <span class="text-2xl font-bold text-blue-400">GS25</span>
+                </button>
+                <button onclick="selectBrand('CU')" class="brand-btn bg-slate-800 p-6 rounded-2xl border-2 border-transparent hover:border-green-400 transition-all flex flex-col items-center gap-2">
+                    <span class="text-2xl font-bold text-green-500">CU</span>
+                </button>
+                <button onclick="selectBrand('7-Eleven')" class="brand-btn bg-slate-800 p-6 rounded-2xl border-2 border-transparent hover:border-red-400 transition-all flex flex-col items-center gap-2">
+                    <span class="text-2xl font-bold text-red-500">7-Eleven</span>
+                </button>
+                <button onclick="selectBrand('Emart24')" class="brand-btn bg-slate-800 p-6 rounded-2xl border-2 border-transparent hover:border-yellow-400 transition-all flex flex-col items-center gap-2">
+                    <span class="text-2xl font-bold text-yellow-500">Emart24</span>
+                </button>
+            </div>
+        </div>
 
-            <!-- Step 2: 기분 선택 -->
-            <section id="step2" class="step hidden">
-                <h2>지금 상태가 어때?</h2>
-                <div class="options-grid">
-                    <button class="mood-btn" data-mood="stress">🔥 스트레스 만땅</button>
-                    <button class="mood-btn" data-mood="drink">🍺 퇴근길 혼술</button>
-                    <button class="mood-btn" data-mood="hangover">🍜 해장이 시급해</button>
-                    <button class="mood-btn" data-mood="sugar">🍰 당 떨어짐</button>
-                    <button class="mood-btn" data-mood="diet">💪 나름 다이어트</button>
-                </div>
-            </section>
-
-            <!-- Step 3: 로딩 -->
-            <section id="loading" class="step hidden">
-                <div class="loading-spinner"></div>
-                <p id="loading-text">AI가 유통기한 확인 중...</p>
-            </section>
-
-            <!-- Step 4: 결과 -->
-            <section id="result" class="step hidden">
-                <div class="result-card">
-                    <h2 id="result-title"></h2>
-                    <p id="result-comment"></p>
-                    <div class="receipt">
-                        <div class="receipt-header">영수증</div>
-                        <ul id="result-ingredients"></ul>
-                        <div class="receipt-footer">
-                            <span>총 금액</span>
-                            <span id="result-price"></span>
-                        </div>
+        <!-- Step 2: Mood Selection (Hidden Initially) -->
+        <div id="step-2" class="step-container hidden">
+            <button onclick="goToStep(1)" class="text-gray-500 text-sm mb-4">← 다시 브랜드 선택</button>
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                <span class="bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+                지금 상태가 어때?
+            </h2>
+            <div class="flex flex-col gap-3">
+                <button onclick="generateOmakase('스트레스 만땅 (맵고 자극적인 거)')" class="w-full bg-slate-800 p-4 rounded-xl text-left hover:bg-red-900/30 transition-all flex items-center gap-4">
+                    <span class="text-2xl">🔥</span>
+                    <div>
+                        <p class="font-bold">스트레스 만땅</p>
+                        <p class="text-xs text-gray-400">맵고 자극적인 조합</p>
                     </div>
-                    <div class="recipe">
-                        <h3>🧑‍🍳 AI 알바생의 비밀 레시피</h3>
-                        <p id="result-recipe"></p>
+                </button>
+                <button onclick="generateOmakase('퇴근길 혼술 (안주 필요)')" class="w-full bg-slate-800 p-4 rounded-xl text-left hover:bg-blue-900/30 transition-all flex items-center gap-4">
+                    <span class="text-2xl">🍺</span>
+                    <div>
+                        <p class="font-bold">퇴근길 혼술</p>
+                        <p class="text-xs text-gray-400">갓성비 고퀄리티 안주</p>
+                    </div>
+                </button>
+                <button onclick="generateOmakase('해장이 시급해 (국물)')" class="w-full bg-slate-800 p-4 rounded-xl text-left hover:bg-yellow-900/30 transition-all flex items-center gap-4">
+                    <span class="text-2xl">🍜</span>
+                    <div>
+                        <p class="font-bold">해장이 시급해</p>
+                        <p class="text-xs text-gray-400">속이 확 풀리는 국물</p>
+                    </div>
+                </button>
+                <button onclick="generateOmakase('당 떨어짐 (달달구리)')" class="w-full bg-slate-800 p-4 rounded-xl text-left hover:bg-pink-900/30 transition-all flex items-center gap-4">
+                    <span class="text-2xl">🍰</span>
+                    <div>
+                        <p class="font-bold">당 떨어짐</p>
+                        <p class="text-xs text-gray-400">지구 한바퀴 돌아야 하는 맛</p>
+                    </div>
+                </button>
+                <button onclick="generateOmakase('다이어터 (단백질/가벼운 거)')" class="w-full bg-slate-800 p-4 rounded-xl text-left hover:bg-green-900/30 transition-all flex items-center gap-4">
+                    <span class="text-2xl">💪</span>
+                    <div>
+                        <p class="font-bold">양심적 다이어터</p>
+                        <p class="text-xs text-gray-400">단백질 위주의 가벼운 한 끼</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Loading (Hidden Initially) -->
+        <div id="step-loading" class="step-container hidden py-20 text-center">
+            <div class="relative inline-block">
+                <div class="w-20 h-20 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl">🏪</div>
+            </div>
+            <p id="loading-text" class="mt-6 text-orange-400 font-bold animate-pulse">AI 알바생이 유통기한 확인 중...</p>
+        </div>
+
+        <!-- Step 4: Result (Hidden Initially) -->
+        <div id="step-result" class="step-container hidden">
+            <div id="receipt-container" class="receipt p-6 rounded-t-sm receipt-font shadow-2xl overflow-hidden mb-10">
+                <div class="text-center border-b-2 border-dashed border-gray-300 pb-4 mb-4">
+                    <p class="text-xs text-gray-500">*** CVS OMAKASE RECEIPT ***</p>
+                    <h3 id="res-title" class="text-xl font-black mt-2">지옥에서 온 불닭정식</h3>
+                    <p id="res-brand" class="text-sm">Store: GS25</p>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-[10px] text-gray-400 mb-2 font-bold uppercase">Order Items</p>
+                    <div id="res-items" class="text-sm space-y-1">
+                        <!-- Items injected here -->
+                    </div>
+                    <div class="border-t border-gray-200 mt-2 pt-2 flex justify-between font-bold">
+                        <span>TOTAL</span>
+                        <span id="res-price">₩ 0</span>
                     </div>
                 </div>
-                <button id="retry-btn">다시 추천받기</button>
-            </section>
-        </main>
+
+                <div class="mb-4 pt-4 border-t-2 border-dashed border-gray-300">
+                    <p class="text-[10px] text-gray-400 mb-2 font-bold uppercase">Recipe</p>
+                    <div id="res-recipe" class="text-xs space-y-2 leading-relaxed">
+                        <!-- Recipe steps injected here -->
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t-2 border-dashed border-gray-300 text-center italic text-sm">
+                    "<span id="res-comment">맛있게 드세요!</span>"
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="goToStep(1)" class="flex-1 bg-slate-700 py-4 rounded-xl font-bold hover:bg-slate-600 transition-all">다시 하기</button>
+                <button id="save-to-favorites" class="flex-1 bg-orange-600 py-4 rounded-xl font-bold hover:bg-orange-500 transition-all">내 저장함에 보관</button>
+            </div>
+        </div>
+
+        <!-- Saved Tab -->
+        <div class="mt-20">
+            <h3 class="text-lg font-bold mb-4 flex items-center justify-between">
+                <span>나의 오마카세 리스트</span>
+                <span id="fav-count" class="bg-slate-800 text-xs px-2 py-1 rounded text-gray-400">0</span>
+            </h3>
+            <div id="favorites-list" class="space-y-4">
+                <!-- Saved items here -->
+            </div>
+        </div>
     </div>
-    <script src="main.js"></script>
+
+    <!-- Firebase SDK & Logic -->
+    <script type="module" src="main.js"></script>
 </body>
 </html>
