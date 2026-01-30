@@ -16,7 +16,7 @@
             <h1 class="text-4xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-purple-500">
                 CVS OMAKASE
             </h1>
-            <p class="text-gray-400 text-sm mt-1">3천 원으로 즐기는 미슐랭, 편의점 오마카세</p>
+            <p class="text-gray-400 text-sm mt-1">3천원 ~ 1만원으로 즐기는 미슐랭, 편의점 오마카세</p>
         </header>
 
         <!-- Step 1: Brand Selection -->
@@ -41,11 +41,30 @@
             </div>
         </div>
 
-        <!-- Step 2: Mood Selection (Hidden Initially) -->
+        <!-- Step 2: Budget Selection (Hidden Initially) -->
         <div id="step-2" class="step-container hidden">
-            <button onclick="goToStep(1)" class="text-gray-500 text-sm mb-4">← 다시 브랜드 선택</button>
+            <button onclick="goToStep(1)" class="text-white text-sm mb-4">← 다시 브랜드 선택</button>
             <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
                 <span class="bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+                예산이 얼마야?
+            </h2>
+            <div class="grid grid-cols-4 gap-2 text-center">
+                <button onclick="selectBudget(3000)" class="budget-btn bg-slate-800 p-4 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all">3천원</button>
+                <button onclick="selectBudget(4000)" class="budget-btn bg-slate-800 p-4 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all">4천원</button>
+                <button onclick="selectBudget(5000)" class="budget-btn bg-slate-800 p-4 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all">5천원</button>
+                <button onclick="selectBudget(6000)" class="budget-btn bg-slate-800 p-4 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all">6천원</button>
+                <button onclick="selectBudget(7000)" class="budget-btn bg-slate-800 p-4 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all">7천원</button>
+                <button onclick="selectBudget(8000)" class="budget-btn bg-slate-800 p-4 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all">8천원</button>
+                <button onclick="selectBudget(9000)" class="budget-btn bg-slate-800 p-4 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all">9천원</button>
+                <button onclick="selectBudget(10000)" class="budget-btn bg-slate-800 p-4 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all">만원</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Mood Selection (Hidden Initially) -->
+        <div id="step-3" class="step-container hidden">
+            <button onclick="goToStep(2)" class="text-white text-sm mb-4">← 다시 예산 선택</button>
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                <span class="bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">3</span>
                 지금 상태가 어때?
             </h2>
             <div class="flex flex-col gap-3">

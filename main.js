@@ -25,6 +25,7 @@ try {
 
 let user = null;
 let currentBrand = '';
+let currentBudget = 0;
 let currentResult = null;
 
 // Step Control
@@ -32,6 +33,7 @@ window.goToStep = (stepNumber) => {
     document.querySelectorAll('.step-container').forEach(el => el.classList.add('hidden'));
     if (stepNumber === 1) document.getElementById('step-1').classList.remove('hidden');
     if (stepNumber === 2) document.getElementById('step-2').classList.remove('hidden');
+    if (stepNumber === 3) document.getElementById('step-3').classList.remove('hidden');
     if (stepNumber === 'loading') document.getElementById('step-loading').classList.remove('hidden');
     if (stepNumber === 'result') document.getElementById('step-result').classList.remove('hidden');
 };
@@ -40,6 +42,12 @@ window.selectBrand = (brand) => {
     console.log("Brand selected:", brand);
     currentBrand = brand;
     goToStep(2);
+};
+
+window.selectBudget = (budget) => {
+    console.log("Budget selected:", budget);
+    currentBudget = budget;
+    goToStep(3);
 };
 
 // Loading Messages
@@ -61,13 +69,15 @@ window.generateOmakase = async (mood) => {
     }, 2000);
 
     const systemPrompt = `당신은 한국의 편의점(GS25, CU, 세븐일레븐, 이마트24) 제품을 통달한 '편의점 꿀조합 마스터'입니다. 
-    사용자가 선택한 브랜드와 기분(Mood)에 맞춰, 현재 실제로 판매 중인 제품들을 조합해 가장 맛있는 레시피를 제안하세요.
+    사용자가 선택한 브랜드와 기분(Mood), 그리고 예산(${currentBudget}원)에 맞춰, 현재 실제로 판매 중인 제품들을 조합해 가장 맛있는 레시피를 제안하세요.
+    최종 가격은 반드시 예산을 초과해서는 안 됩니다.
     조합의 이름은 SNS에서 유행할 법한 재치 있는 이름으로 지으세요. 말투는 친근하고 유머러스한 '20대 편의점 알바생' 톤을 유지하세요.
     결과는 반드시 아래 JSON 형식으로만 응답하세요:
     {
         "combo_name": "String",
         "store_brand": "${currentBrand}",
         "mood_tag": "${mood}",
+        "budget": ${currentBudget},
         "total_price_estimate": Number,
         "items": [{"name": String, "price": Number}],
         "recipe_steps": [String],
@@ -79,7 +89,7 @@ window.generateOmakase = async (mood) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: `브랜드: ${currentBrand}, 오늘의 기분: ${mood}` }] }],
+                contents: [{ parts: [{ text: `브랜드: ${currentBrand}, 예산: ${currentBudget}원, 오늘의 기분: ${mood}` }] }],
                 systemInstruction: { parts: [{ text: systemPrompt }] },
                 generationConfig: { responseMimeType: "application/json" }
             })
@@ -92,7 +102,7 @@ window.generateOmakase = async (mood) => {
     } catch (error) {
         console.error("AI 생성 실패:", error);
         alert("알바생이 지금 바쁘네요... 다시 시도해주세요!");
-        goToStep(2);
+        goToStep(3);
     } finally {
         clearInterval(msgInterval);
     }
