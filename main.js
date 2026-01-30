@@ -55,6 +55,17 @@ window.generateOmakase = async (mood) => {
             throw new Error(data.error || "메뉴 추천을 가져오는데 실패했습니다.");
         }
 
+        // [디버깅] 실제 데이터 구조 확인을 위해 로그 출력 (개발자 도구 콘솔에서 확인 가능)
+        console.log("AI Response Data:", data);
+
+        // [안전장치 추가] candidates 배열이 존재하는지 확인
+        // 구글 API가 에러를 반환했거나(키 만료 등), 안전 필터로 응답을 거부했을 경우 candidates가 없을 수 있음
+        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+            // 에러 메시지가 API 응답에 포함되어 있다면 그 내용을 사용
+            const errorMsg = data.error ? data.error.message : "AI가 적절한 답변을 생성하지 못했습니다.";
+            throw new Error(`AI 응답 오류: ${errorMsg}`);
+        }
+
         // Gemini API 응답 구조에서 텍스트 결과만 추출하여 파싱
         // (functions/recommend.js가 그대로 반환해준 구조)
         const resultText = data.candidates[0].content.parts[0].text;
