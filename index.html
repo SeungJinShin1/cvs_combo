@@ -4,83 +4,40 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
-        <!-- [SEO] 검색 엔진 최적화: 사이트 제목 및 설명 -->
-        <title>편의점 오마카세 - AI가 알려주는 편의점 꿀조합 & 레시피</title>
-        <!-- 구글 서치 콘솔 소유권 확인 태그 -->
-        <meta name="google-site-verification" content="sOtfNb17O2I2nv23T3Xh5ESGQGBeGnrYezexd7Jwhnw" />
-        
-        <meta name="description" content="오늘 뭐 먹지? GS25, CU, 세븐일레븐, 이마트24 편의점 꿀조합 레시피를 AI가 추천해 드립니다. 예산별, 기분별 맞춤 오마카세를 즐겨보세요.">
-        <meta name="keywords" content="편의점꿀조합, 편의점레시피, 편의점오마카세, GS25추천, CU추천, 편의점다이어트, 편의점해장, 편의점안주, 꿀조합생성기">
+        <!-- [SEO] 검색 엔진 최적화 -->
+        <title>편의점 오마카세 - AI가 알려주는 편의점 꿀조합</title>
+        <meta name="description" content="오늘 뭐 먹지? GS25, CU, 세븐일레븐, 이마트24 편의점 꿀조합 레시피를 AI가 추천해 드립니다.">
+        <meta name="keywords" content="편의점꿀조합, 편의점레시피, 편의점오마카세, GS25추천, CU추천, 편의점다이어트, 편의점해장">
         <meta name="author" content="CVS Omakase">
         
-        <!-- [Social] 카카오톡/페이스북 공유 최적화 (Open Graph) -->
-        <meta property="og:type" content="website">
-        <meta property="og:url" content="https://cvs-combo.pages.dev/">
-        <meta property="og:title" content="편의점 오마카세 (CVS Omakase)">
-        <meta property="og:description" content="3천원~만원으로 즐기는 미슐랭! AI 편의점 알바생이 꿀조합 레시피를 짜드립니다.">
-        <meta property="og:image" content="https://ui-avatars.com/api/?name=CVS&background=FF6B35&color=fff&size=512"> <!-- 임시 이미지 -->
+        <!-- 구글 서치 콘솔 인증 -->
+        <meta name="google-site-verification" content="sOtfNb17O2I2nv23T3Xh5ESGQGBeGnrYezexd7Jwhnw" />
     
-        <!-- [GEO] 생성형 AI 검색 최적화 (JSON-LD 구조화 데이터) -->
-        <!-- 이 코드는 AI가 우리 사이트를 '웹 애플리케이션'으로 정확히 이해하게 돕습니다 -->
+        <!-- [Google AdSense] 자동 광고 스크립트 -->
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2560292529896467" crossorigin="anonymous"></script>
+    
+        <!-- 스타일시트 및 폰트 -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+        
+        <!-- 커스텀 CSS 파일 연결 -->
+        <link rel="stylesheet" href="style.css">
+    
+        <!-- [GEO] JSON-LD 구조화 데이터 -->
         <script type="application/ld+json">
         {
           "@context": "https://schema.org",
           "@type": "WebApplication",
           "name": "편의점 오마카세",
           "url": "https://cvs-combo.pages.dev/",
-          "description": "사용자의 예산과 기분에 맞춰 편의점 음식 조합과 레시피를 추천해주는 AI 서비스",
+          "description": "AI 편의점 꿀조합 추천 서비스",
           "applicationCategory": "LifestyleApplication",
           "operatingSystem": "Web Browser",
-          "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "KRW"
-          }
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
         }
         </script>
-    
-        <script src="https://cdn.tailwindcss.com"></script>
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
-        <style>
-            :root {
-                --cvs-orange: #FF6B35;
-                --cvs-blue: #004E98;
-                --cvs-neon-purple: #9D4EDD;
-            }
-            body {
-                background-color: #0f172a;
-                font-family: 'Noto Sans KR', sans-serif;
-                color: #f8fafc;
-                /* 쿠팡 배너 높이(75px) + 여유공간 만큼 하단 여백 확보 */
-                padding-bottom: 90px; 
-            }
-            .receipt-font {
-                font-family: 'IBM Plex Mono', 'D2Coding', monospace;
-            }
-            .receipt {
-                background: #fff;
-                color: #333;
-                position: relative;
-                filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
-            }
-            .receipt::after {
-                content: "";
-                position: absolute;
-                bottom: -10px;
-                left: 0;
-                width: 100%;
-                height: 10px;
-                background: linear-gradient(-45deg, transparent 5px, #fff 5px), linear-gradient(45deg, transparent 5px, #fff 5px);
-                background-size: 10px 10px;
-            }
-            /* 쿠팡 아이프레임 컨테이너 */
-            .coupang-banner {
-                background-color: white;
-                box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            }
-        </style>
     </head>
-    <body class="min-h-screen">
+    <body class="min-h-screen relative">
     
         <div id="app" class="max-w-md mx-auto px-4 py-8">
             <!-- Header -->
@@ -91,29 +48,29 @@
                 <p class="text-gray-400 text-sm mt-1">만원으로 즐기는 미슐랭, 편의점 오마카세</p>
             </header>
     
-            <!-- Step 1: Brand Selection -->
+            <!-- Step 1: 편의점 선택 -->
             <div id="step-1" class="step-container">
                 <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
                     <span class="bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
                     어디 편의점 앞이야?
                 </h2>
                 <div class="grid grid-cols-2 gap-4">
-                    <button onclick="selectBrand('GS25')" class="bg-slate-800 p-6 rounded-2xl border-2 border-transparent hover:border-blue-400 transition-all flex flex-col items-center gap-2">
+                    <button onclick="selectBrand('GS25')" class="brand-btn bg-slate-800 p-6 rounded-2xl border-2 border-transparent hover:border-blue-400 transition-all flex flex-col items-center gap-2">
                         <span class="text-2xl font-bold text-blue-400">GS25</span>
                     </button>
-                    <button onclick="selectBrand('CU')" class="bg-slate-800 p-6 rounded-2xl border-2 border-transparent hover:border-green-400 transition-all flex flex-col items-center gap-2">
+                    <button onclick="selectBrand('CU')" class="brand-btn bg-slate-800 p-6 rounded-2xl border-2 border-transparent hover:border-green-400 transition-all flex flex-col items-center gap-2">
                         <span class="text-2xl font-bold text-green-500">CU</span>
                     </button>
-                    <button onclick="selectBrand('7-Eleven')" class="bg-slate-800 p-6 rounded-2xl border-2 border-transparent hover:border-red-400 transition-all flex flex-col items-center gap-2">
+                    <button onclick="selectBrand('7-Eleven')" class="brand-btn bg-slate-800 p-6 rounded-2xl border-2 border-transparent hover:border-red-400 transition-all flex flex-col items-center gap-2">
                         <span class="text-2xl font-bold text-red-500">7-Eleven</span>
                     </button>
-                    <button onclick="selectBrand('Emart24')" class="bg-slate-800 p-6 rounded-2xl border-2 border-transparent hover:border-yellow-400 transition-all flex flex-col items-center gap-2">
+                    <button onclick="selectBrand('Emart24')" class="brand-btn bg-slate-800 p-6 rounded-2xl border-2 border-transparent hover:border-yellow-400 transition-all flex flex-col items-center gap-2">
                         <span class="text-2xl font-bold text-yellow-500">Emart24</span>
                     </button>
                 </div>
             </div>
     
-            <!-- Step 1.5: Budget Selection -->
+            <!-- Step 1.5: 예산 선택 -->
             <div id="step-budget" class="step-container hidden">
                 <button onclick="goToStep(1)" class="text-gray-500 text-sm mb-4">← 다시 브랜드 선택</button>
                 <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
@@ -121,18 +78,18 @@
                     예산은 얼마정도 있어?
                 </h2>
                 <div class="grid grid-cols-4 gap-2 text-center">
-                    <button onclick="selectBudget(3000)" class="bg-slate-800 p-4 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all">3천원</button>
-                    <button onclick="selectBudget(4000)" class="bg-slate-800 p-4 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all">4천원</button>
-                    <button onclick="selectBudget(5000)" class="bg-slate-800 p-4 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all">5천원</button>
-                    <button onclick="selectBudget(6000)" class="bg-slate-800 p-4 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all">6천원</button>
-                    <button onclick="selectBudget(7000)" class="bg-slate-800 p-4 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all">7천원</button>
-                    <button onclick="selectBudget(8000)" class="bg-slate-800 p-4 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all">8천원</button>
-                    <button onclick="selectBudget(9000)" class="bg-slate-800 p-4 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all">9천원</button>
-                    <button onclick="selectBudget(10000)" class="bg-slate-800 p-4 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all">만원</button>
+                    <button onclick="selectBudget(3000)" class="budget-btn bg-slate-800 p-3 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all text-sm">3천원</button>
+                    <button onclick="selectBudget(4000)" class="budget-btn bg-slate-800 p-3 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all text-sm">4천원</button>
+                    <button onclick="selectBudget(5000)" class="budget-btn bg-slate-800 p-3 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all text-sm">5천원</button>
+                    <button onclick="selectBudget(6000)" class="budget-btn bg-slate-800 p-3 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all text-sm">6천원</button>
+                    <button onclick="selectBudget(7000)" class="budget-btn bg-slate-800 p-3 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all text-sm">7천원</button>
+                    <button onclick="selectBudget(8000)" class="budget-btn bg-slate-800 p-3 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all text-sm">8천원</button>
+                    <button onclick="selectBudget(9000)" class="budget-btn bg-slate-800 p-3 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all text-sm">9천원</button>
+                    <button onclick="selectBudget(10000)" class="budget-btn bg-slate-800 p-3 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all text-sm">만원</button>
                 </div>
             </div>
     
-            <!-- Step 2: Mood Selection -->
+            <!-- Step 2: 기분 선택 -->
             <div id="step-2" class="step-container hidden">
                 <button onclick="goToStep('budget')" class="text-gray-500 text-sm mb-4">← 다시 예산 선택</button>
                 <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
@@ -148,36 +105,37 @@
                         <span class="text-2xl">🍺</span>
                         <div><p class="font-bold">퇴근길 혼술</p><p class="text-xs text-gray-400">갓성비 안주</p></div>
                     </button>
-                    <button onclick="generateOmakase('해장이 필요해 (얼큰+부드러움)')" class="w-full bg-slate-800 p-4 rounded-xl text-left hover:bg-yellow-900/30 transition-all flex items-center gap-4">
+                    <button onclick="generateOmakase('해장이 필요해 (국물)')" class="w-full bg-slate-800 p-4 rounded-xl text-left hover:bg-yellow-900/30 transition-all flex items-center gap-4">
                         <span class="text-2xl">🍲</span>
-                        <div><p class="font-bold">해장이 필요해</p><p class="text-xs text-gray-400">얼큰한 국물과 부드러운 음식</p></div>
+                        <div><p class="font-bold">해장이 시급해</p><p class="text-xs text-gray-400">속 풀리는 국물</p></div>
                     </button>
-                    <button onclick="generateOmakase('당 떨어졌어 (달달구리)')" class="w-full bg-slate-800 p-4 rounded-xl text-left hover:bg-pink-900/30 transition-all flex items-center gap-4">
+                    <button onclick="generateOmakase('당 떨어짐 (달달구리)')" class="w-full bg-slate-800 p-4 rounded-xl text-left hover:bg-pink-900/30 transition-all flex items-center gap-4">
                         <span class="text-2xl">🍫</span>
-                        <div><p class="font-bold">당 떨어졌어</p><p class="text-xs text-gray-400">달콤함으로 채우는 에너지</p></div>
+                        <div><p class="font-bold">당 떨어짐</p><p class="text-xs text-gray-400">극강의 달콤함</p></div>
                     </button>
-                    <button onclick="generateOmakase('다이어트 중 (가볍게)')" class="w-full bg-slate-800 p-4 rounded-xl text-left hover:bg-green-900/30 transition-all flex items-center gap-4">
+                    <button onclick="generateOmakase('나름 다이어트 (가볍게)')" class="w-full bg-slate-800 p-4 rounded-xl text-left hover:bg-green-900/30 transition-all flex items-center gap-4">
                         <span class="text-2xl">🥗</span>
-                        <div><p class="font-bold">다이어트 중</p><p class="text-xs text-gray-400">가볍고 건강한 한 끼</p></div>
+                        <div><p class="font-bold">양심적 다이어터</p><p class="text-xs text-gray-400">단백질 가득 가볍게</p></div>
                     </button>
                 </div>
             </div>
     
-            <!-- Step 3: Loading -->
+            <!-- Step 3: 로딩 화면 -->
             <div id="step-loading" class="step-container hidden py-20 text-center">
                 <div class="relative inline-block">
-                    <div class="w-20 h-20 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div class="w-20 h-20 border-4 border-orange-500 border-t-transparent rounded-full loader-spin"></div>
                     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl">🏪</div>
                 </div>
                 <p id="loading-text" class="mt-6 text-orange-400 font-bold animate-pulse">AI 알바생이 메뉴 짜는 중...</p>
             </div>
     
-            <!-- Step 4: Result -->
+            <!-- Step 4: 결과 화면 -->
             <div id="step-result" class="step-container hidden">
-                <div id="receipt-container" class="receipt p-6 rounded-t-sm receipt-font shadow-2xl overflow-hidden mb-5">
+                <!-- 영수증 UI -->
+                <div id="receipt-container" class="receipt p-6 rounded-t-sm receipt-font shadow-2xl overflow-hidden mb-6">
                     <div class="text-center border-b-2 border-dashed border-gray-300 pb-4 mb-4">
                         <p class="text-xs text-gray-500">*** CVS OMAKASE RECEIPT ***</p>
-                        <h3 id="res-title" class="text-xl font-black mt-2">추천 메뉴</h3>
+                        <h3 id="res-title" class="text-xl font-black mt-2 tracking-tighter">추천 메뉴</h3>
                         <p id="res-brand" class="text-sm">Store: -</p>
                     </div>
                     <div class="mb-4">
@@ -196,25 +154,32 @@
                     </div>
                 </div>
     
+                <!-- 컨트롤 버튼 -->
                 <div class="flex gap-2">
-                    <button onclick="goToStep(1)" class="flex-1 bg-slate-700 py-4 rounded-xl font-bold">다시 하기</button>
-                    <button id="save-to-favorites" class="flex-1 bg-orange-600 py-4 rounded-xl font-bold">저장하기</button>
+                    <button onclick="goToStep(1)" class="flex-1 bg-slate-700 py-4 rounded-xl font-bold hover:bg-slate-600 transition-colors">다시 하기</button>
+                    <button id="save-to-favorites" class="flex-1 bg-orange-600 py-4 rounded-xl font-bold hover:bg-orange-500 transition-colors">저장하기</button>
                 </div>
             </div>
     
-            <!-- Saved Tab -->
-            <div class="mt-20">
-                <h3 class="text-lg font-bold mb-4">나의 저장함 <span id="fav-count" class="text-sm font-normal text-gray-500">0</span></h3>
-                <div id="favorites-list" class="space-y-4"></div>
+            <!-- 저장 목록 탭 -->
+            <div class="mt-16 pt-8 border-t border-slate-800">
+                <h3 class="text-lg font-bold mb-4 flex items-center justify-between">
+                    <span>나의 오마카세 리스트</span>
+                    <span id="fav-count" class="bg-slate-800 text-xs px-2 py-1 rounded text-gray-400">0</span>
+                </h3>
+                <div id="favorites-list" class="space-y-4">
+                    <!-- 저장된 항목들이 여기에 추가됨 -->
+                </div>
             </div>
         </div>
     
-        <!-- [수익화] 쿠팡 파트너스 배너 영역 -->
-        <!-- 하단에 고정되며, 본문 내용을 가리지 않도록 body padding이 적용됨 -->
-        <div class="coupang-banner fixed bottom-0 left-0 w-full h-[75px] z-50 overflow-hidden flex justify-center">
+        <!-- [쿠팡 파트너스 배너] 하단 플로팅 스타일 -->
+        <div class="coupang-floating-banner">
+            <span class="banner-close" onclick="this.parentElement.style.display='none'">✕</span>
             <iframe src="https://coupa.ng/cltNTJ" width="100%" height="75" frameborder="0" scrolling="no" referrerpolicy="unsafe-url" browsingtopics></iframe>
         </div>
     
+        <!-- 자바스크립트 파일 연결 -->
         <script type="module" src="main.js"></script>
     </body>
-</html>
+    </html>
