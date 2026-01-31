@@ -24,28 +24,38 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let user = null;
 let currentBrand = '';
 let currentBudget = 3000;
 let currentResult = null;
-const STORAGE_KEY = 'cvs_omakase_list'; // 로컬 스토리지 저장 키
+const STORAGE_KEY = 'cvs_omakase_list'; // 로컬 스토리지 키
 
-// 화면 전환 함수
+// 화면 전환
 window.goToStep = (step) => {
     document.querySelectorAll('.step-container').forEach(el => el.classList.add('hidden'));
-    const target = document.getElementById(isNaN(step) ? `step-${step}` : `step-${step}`);
+    const targetId = isNaN(step) ? `step-${step}` : `step-${step}`;
+    const target = document.getElementById(targetId);
     if (target) target.classList.remove('hidden');
+    // 화면 전환 시 스크롤 맨 위로
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-window.selectBrand = (brand) => { currentBrand = brand; goToStep('budget'); };
-window.selectBudget = (budget) => { currentBudget = budget; goToStep(2); };
+// 선택 핸들러 함수들
+window.selectBrand = (brand) => { 
+    currentBrand = brand; 
+    goToStep('budget'); 
+};
+window.selectBudget = (budget) => { 
+    currentBudget = budget; 
+    goToStep(2); 
+};
 
-// AI 추천 생성 함수 (Cloudflare Functions 연동)
+// AI 추천 생성 (Cloudflare Functions 호출)
 window.generateOmakase = async (mood) => {
     goToStep('loading');
 
     try {
         // [보안] API 키는 서버(functions/recommend.js)에 숨겨져 있습니다.
+        // 브라우저에서는 /recommend 경로로 요청만 보냅니다.
         const response = await fetch('/recommend', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -59,12 +69,12 @@ window.generateOmakase = async (mood) => {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || "메뉴 추천을 가져오는데 실패했습니다.");
+            throw new Error(data.error || "메뉴 추천 실패");
         }
 
+        // AI 응답 데이터 검증
         if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-            const errorMsg = data.error ? data.error.message : "AI가 적절한 답변을 생성하지 못했습니다.";
-            throw new Error(`AI 응답 오류: ${errorMsg}`);
+            throw new Error("AI가 유효한 응답을 주지 않았습니다.");
         }
 
         const resultText = data.candidates[0].content.parts[0].text;
@@ -74,65 +84,66 @@ window.generateOmakase = async (mood) => {
         displayResult(result);
 
     } catch (error) {
-        console.error("Error:", error);
-        alert(`알바생이 지금 좀 바쁘네요! 사유: ${error.message}`);
-        goToStep(2);
+        console.error("AI Error:", error);
+        alert(`알바생이 바쁘네요! (${error.message})`);
+        goToStep(2); // 오류 시 다시 선택 화면으로
     }
 };
 
-// 결과 화면 표시 함수
+// 결과 표시 함수
 function displayResult(res) {
     document.getElementById('res-title').innerText = res.combo_name;
     document.getElementById('res-brand').innerText = `Store: ${currentBrand}`;
     document.getElementById('res-price').innerText = `₩ ${res.total_price_estimate.toLocaleString()}`;
     document.getElementById('res-comment').innerText = res.ai_comment;
-    document.getElementById('res-items').innerHTML = res.items.map(i => `<div class="flex justify-between"><span>- ${i.name}</span><span>${i.price.toLocaleString()}</span></div>`).join('');
-    document.getElementById('res-recipe').innerHTML = res.recipe_steps.map((s,idx) => `<p>${idx+1}. ${s}</p>`).join('');
+    
+    // 구성품 목록 생성
+    const itemsHtml = res.items.map(i => `
+        <div class="flex justify-between">
+            <span>- ${i.name}</span>
+            <span>${i.price.toLocaleString()}</span>
+        </div>`).join('');
+    document.getElementById('res-items').innerHTML = itemsHtml;
+
+    // 레시피 단계 생성
+    const recipeHtml = res.recipe_steps.map((s,idx) => `<p class="mb-1">${idx+1}. ${s}</p>`).join('');
+    document.getElementById('res-recipe').innerHTML = recipeHtml;
+
     goToStep('result');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// [핵심 변경] 데이터 저장 함수 (큐 구조: 신규 추가 시 오래된 것 자동 삭제)
+// 저장하기 함수 (최대 3개, 큐 방식)
 function saveToFavorites() {
-    if (!currentResult) {
-        alert("저장할 추천 결과가 없습니다.");
-        return;
-    }
+    if (!currentResult) return;
 
-    // 1. 기존 데이터 가져오기 (없으면 빈 배열)
     const savedData = localStorage.getItem(STORAGE_KEY);
     let list = savedData ? JSON.parse(savedData) : [];
 
-    // 2. 새 항목 객체 생성
     const newItem = {
-        id: Date.now(), // 고유 ID
+        id: Date.now(),
         ...currentResult,
         store_brand: currentBrand,
         savedAt: Date.now()
     };
 
-    // 3. 리스트 맨 앞에 추가 (Unshift)
+    // 리스트 맨 앞에 추가
     list.unshift(newItem);
 
-    // 4. 3개 초과 시 뒤(가장 오래된 것)에서부터 삭제 (Slice)
+    // 3개 넘으면 가장 오래된 것(뒤쪽) 삭제
     if (list.length > 3) {
         list = list.slice(0, 3);
     }
 
-    // 5. 다시 로컬 스토리지에 저장
     localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-    
-    // UI 갱신 및 알림
     loadFavorites();
-    alert("저장되었습니다! (최대 3개까지 자동 관리됩니다)");
+    alert("저장되었습니다! (최근 3개까지 보관)");
 }
 
-// [핵심 변경] 데이터 불러오기 함수 (삭제 버튼 제거됨)
+// 저장 목록 불러오기 함수
 function loadFavorites() {
     const listEl = document.getElementById('favorites-list');
     const countEl = document.getElementById('fav-count');
     
-    // 로컬 스토리지에서 데이터 읽기
     const savedData = localStorage.getItem(STORAGE_KEY);
     const list = savedData ? JSON.parse(savedData) : [];
 
@@ -140,7 +151,7 @@ function loadFavorites() {
     if (!listEl) return;
 
     if (list.length === 0) {
-        listEl.innerHTML = '<p class="text-gray-600 text-center py-5 text-sm">저장된 조합이 없습니다.</p>';
+        listEl.innerHTML = '<p class="text-gray-500 text-center py-4 text-xs">저장된 내역이 없습니다.</p>';
         return;
     }
 
@@ -148,39 +159,35 @@ function loadFavorites() {
     
     list.forEach(data => {
         const card = document.createElement('div');
-        // 디자인: 클릭 가능하게 커서 포인터 추가 및 삭제 버튼 공간 제거
-        card.className = 'bg-slate-800 p-4 rounded-xl flex justify-between items-center border-l-4 border-orange-500 hover:bg-slate-700 transition-colors cursor-pointer';
+        card.className = 'bg-slate-800 p-4 rounded-xl flex justify-between items-center border-l-4 border-orange-500 cursor-pointer hover:bg-slate-700 transition-colors mb-3';
         card.innerHTML = `
-            <div class="flex-1">
-                <p class="font-bold text-sm text-white">${data.combo_name || '이름 없음'}</p>
-                <p class="text-[10px] text-gray-400">${data.store_brand || '-'} • ₩${(data.total_price_estimate || 0).toLocaleString()}</p>
+            <div class="flex-1 pr-2">
+                <p class="font-bold text-sm text-white truncate">${data.combo_name}</p>
+                <p class="text-[10px] text-gray-400">${data.store_brand} • ₩${data.total_price_estimate.toLocaleString()}</p>
             </div>
-            <div>
-                <button class="v-btn text-xs bg-slate-600 hover:bg-slate-500 text-white px-3 py-2 rounded transition-colors">보기</button>
-            </div>`;
+            <button class="text-xs bg-slate-600 px-3 py-2 rounded text-white hover:bg-slate-500 whitespace-nowrap">보기</button>
+        `;
         
-        listEl.appendChild(card);
-        
-        // 카드 전체 클릭 시 보기 실행
-        card.onclick = () => {
-            currentBrand = data.store_brand; 
+        // 카드 전체 클릭 이벤트 (상세 보기)
+        const viewAction = (e) => {
+            if(e) e.stopPropagation();
+            currentBrand = data.store_brand;
             displayResult(data);
         };
 
-        // 보기 버튼 클릭 시 (이벤트 버블링 방지 및 실행)
-        card.querySelector('.v-btn').onclick = (e) => { 
-            e.stopPropagation(); 
-            currentBrand = data.store_brand; 
-            displayResult(data); 
-        };
+        card.onclick = viewAction;
+        card.querySelector('button').onclick = viewAction;
+        
+        listEl.appendChild(card);
     });
 }
 
-// 이벤트 리스너 연결
+// 초기화 로직
 const saveBtn = document.getElementById('save-to-favorites');
-if (saveBtn) {
-    saveBtn.onclick = saveToFavorites;
-}
+if (saveBtn) saveBtn.onclick = saveToFavorites;
 
 // 페이지 로드 시 저장된 목록 불러오기
 loadFavorites();
+
+// HTML onclick에서 사용할 수 있도록 전역 함수로 등록
+window.saveToFavorites = saveToFavorites;

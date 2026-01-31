@@ -1,25 +1,60 @@
+/* 기본 색상 변수 설정 */
 :root {
     --cvs-orange: #FF6B35;
     --cvs-blue: #004E98;
-    --cvs-neon-purple: #9D4EDD;
+    --cvs-dark: #0f172a;
 }
+
+/* 전체 페이지 레이아웃 */
 body {
-    background-color: #0f172a;
+    background-color: var(--cvs-dark);
     font-family: 'Noto Sans KR', sans-serif;
     color: #f8fafc;
+    /* 하단 배너가 내용을 가리지 않도록 여백 확보 */
+    padding-bottom: 120px; 
 }
+
+/* 유틸리티 클래스 */
+.step-badge {
+    @apply bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs;
+}
+
+.back-btn {
+    @apply text-gray-500 text-sm mb-4 hover:text-white transition-colors;
+}
+
+/* 버튼 스타일: 브랜드 선택 */
+.brand-btn {
+    @apply bg-slate-800 p-6 rounded-2xl border-2 border-transparent transition-all flex flex-col items-center gap-2 active:scale-95;
+}
+.border-hover-blue:hover { border-color: #60a5fa; }
+.border-hover-green:hover { border-color: #4ade80; }
+.border-hover-red:hover { border-color: #f87171; }
+.border-hover-yellow:hover { border-color: #facc15; }
+
+/* 버튼 스타일: 예산 선택 */
+.budget-btn {
+    @apply bg-slate-800 p-3 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all text-sm active:scale-95 text-gray-300 hover:text-white;
+}
+
+/* 버튼 스타일: 기분 선택 */
+.mood-btn {
+    @apply w-full bg-slate-800 p-4 rounded-xl text-left transition-all flex items-center gap-4 active:scale-95 border border-transparent hover:border-slate-600;
+}
+
+/* 영수증 스타일 */
 .receipt-font {
-    font-family: 'IBM+Plex+Mono', 'D2Coding', monospace;
+    font-family: 'IBM Plex Mono', 'D2Coding', monospace;
 }
-.neon-border {
-    box-shadow: 0 0 10px var(--cvs-orange), 0 0 20px var(--cvs-orange);
-}
+
 .receipt {
     background: #fff;
     color: #333;
     position: relative;
     filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
 }
+
+/* 영수증 하단 지그재그 효과 */
 .receipt::after {
     content: "";
     position: absolute;
@@ -30,14 +65,60 @@ body {
     background: linear-gradient(-45deg, transparent 5px, #fff 5px), linear-gradient(45deg, transparent 5px, #fff 5px);
     background-size: 10px 10px;
 }
-.loading-shimmer {
-    background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+
+/* [UI/UX] 쿠팡 파트너스 플로팅 배너 스타일 */
+.coupang-floating-container {
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 50;
+    padding: 0 16px; /* 모바일 좌우 여백 */
+    pointer-events: none; /* 배경 클릭 가능하게 */
 }
-@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-.tab-btn.active {
-    background-color: var(--cvs-orange);
-    color: white;
-    box-shadow: 0 0 15px var(--cvs-orange);
+
+.coupang-card {
+    pointer-events: auto; /* 카드만 클릭 가능 */
+    width: 100%;
+    max-width: 420px; /* 너무 길어지지 않게 */
+    height: 85px; /* iframe(75) + 여백 */
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,0.1);
+    animation: slideUp 0.5s ease-out;
 }
+
+/* 배너 닫기 버튼 */
+.banner-close {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    font-size: 14px;
+    color: #999;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 60;
+    padding: 4px;
+}
+.banner-close:hover { color: #333; }
+
+/* 애니메이션 정의 */
+@keyframes slideUp {
+    from { transform: translateY(100px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* 로딩 스피너 애니메이션 */
+.loader-spin {
+    animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
