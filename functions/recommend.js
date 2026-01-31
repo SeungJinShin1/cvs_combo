@@ -18,7 +18,7 @@ export async function onRequestPost(context) {
       const systemPrompt = `당신은 한국 편의점 전문가 '꿀조합 마스터'입니다. 브랜드: ${brand}, 예산: ${budget}원 이내, 기분: ${mood}에 맞는 상품 조합을 추천하세요. 결과는 반드시 JSON으로만 응답하세요: { "combo_name": "String", "total_price_estimate": Number, "items": [{"name": "String", "price": Number}], "recipe_steps": ["String"], "ai_comment": "String" }`;
   
       // 2. 서버 사이드에서 Gemini API 호출 (브라우저 네트워크 탭에 키가 노출되지 않음)
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
