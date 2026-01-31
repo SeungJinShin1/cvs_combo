@@ -14,32 +14,93 @@ body {
     padding-bottom: 120px; 
 }
 
-/* 유틸리티 클래스 */
+/* [수정됨] 유틸리티 클래스 (표준 CSS로 변경) */
 .step-badge {
-    @apply bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs;
+    background-color: #f97316; /* orange-500 */
+    color: white;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
 }
 
 .back-btn {
-    @apply text-gray-500 text-sm mb-4 hover:text-white transition-colors;
+    color: #6b7280; /* gray-500 */
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    transition: color 0.2s;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.back-btn:hover {
+    color: white;
 }
 
-/* 버튼 스타일: 브랜드 선택 */
+/* [수정됨] 버튼 스타일: 브랜드 선택 */
 .brand-btn {
-    @apply bg-slate-800 p-6 rounded-2xl border-2 border-transparent transition-all flex flex-col items-center gap-2 active:scale-95;
+    background-color: #1e293b; /* slate-800 */
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
 }
+.brand-btn:active {
+    transform: scale(0.95);
+}
+
+/* 브랜드별 호버 색상 */
 .border-hover-blue:hover { border-color: #60a5fa; }
 .border-hover-green:hover { border-color: #4ade80; }
 .border-hover-red:hover { border-color: #f87171; }
 .border-hover-yellow:hover { border-color: #facc15; }
 
-/* 버튼 스타일: 예산 선택 */
+/* [수정됨] 버튼 스타일: 예산 선택 */
 .budget-btn {
-    @apply bg-slate-800 p-3 rounded-xl border-2 border-transparent hover:border-orange-400 transition-all text-sm active:scale-95 text-gray-300 hover:text-white;
+    background-color: #1e293b; /* slate-800 */
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+    color: #d1d5db; /* gray-300 */
+    width: 100%;
+}
+.budget-btn:hover {
+    border-color: #fb923c; /* orange-400 */
+    color: white;
+}
+.budget-btn:active {
+    transform: scale(0.95);
 }
 
-/* 버튼 스타일: 기분 선택 */
+/* [수정됨] 버튼 스타일: 기분 선택 */
 .mood-btn {
-    @apply w-full bg-slate-800 p-4 rounded-xl text-left transition-all flex items-center gap-4 active:scale-95 border border-transparent hover:border-slate-600;
+    width: 100%;
+    background-color: #1e293b; /* slate-800 */
+    padding: 1rem;
+    border-radius: 0.75rem;
+    text-align: left;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid transparent;
+}
+.mood-btn:hover {
+    border-color: #475569; /* slate-600 */
+    /* 배경색 변경은 HTML inline style로 처리됨 */
+}
+.mood-btn:active {
+    transform: scale(0.95);
 }
 
 /* 영수증 스타일 */
