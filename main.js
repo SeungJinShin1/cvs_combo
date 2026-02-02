@@ -56,7 +56,7 @@ window.generateOmakase = async (mood) => {
     try {
         // [보안] API 키는 서버(functions/recommend.js)에 숨겨져 있습니다.
         // 브라우저에서는 /recommend 경로로 요청만 보냅니다.
-        const response = await fetch('/recommend', {
+        const response = await fetch('api/recommend', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
