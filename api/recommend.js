@@ -1,5 +1,4 @@
 /**
- * Cloudflare Pages Functions: 서버 사이드에서 API 키를 안전하게 사용하여
  * Gemini API에 요청을 보내고 결과를 반환하는 프록시 함수입니다.
  */
 export default async function handler(req, res) {
@@ -11,7 +10,7 @@ export default async function handler(req, res) {
   try {
     // 2. 환경 변수 확인 (Vercel 대시보드에서 설정한 값)
     // Vercel은 process.env 객체를 통해 환경 변수에 접근합니다.
-    const apiKey = process.env.VITE_GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: "Server Configuration Error: API Key not found." });
     }
