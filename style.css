@@ -40,7 +40,7 @@ body {
     color: white;
 }
 
-/* [수정됨] 버튼 스타일: 브랜드 선택 */
+/* 버튼 스타일: 브랜드 선택 */
 .brand-btn {
     background-color: #1e293b; /* slate-800 */
     padding: 1.5rem;
@@ -63,7 +63,7 @@ body {
 .border-hover-red:hover { border-color: #f87171; }
 .border-hover-yellow:hover { border-color: #facc15; }
 
-/* [수정됨] 버튼 스타일: 예산 선택 */
+/* 버튼 스타일: 예산 선택 */
 .budget-btn {
     background-color: #1e293b; /* slate-800 */
     padding: 0.75rem;
@@ -82,7 +82,7 @@ body {
     transform: scale(0.95);
 }
 
-/* [수정됨] 버튼 스타일: 기분 선택 */
+/* 버튼 스타일: 기분 선택 */
 .mood-btn {
     width: 100%;
     background-color: #1e293b; /* slate-800 */
@@ -157,20 +157,6 @@ body {
     animation: slideUp 0.5s ease-out;
 }
 
-/* 배너 닫기 버튼 */
-.banner-close {
-    position: absolute;
-    top: 4px;
-    right: 8px;
-    font-size: 14px;
-    color: #999;
-    background: none;
-    border: none;
-    cursor: pointer;
-    z-index: 60;
-    padding: 4px;
-}
-.banner-close:hover { color: #333; }
 
 /* 애니메이션 정의 */
 @keyframes slideUp {
@@ -183,3 +169,12 @@ body {
     animation: spin 1s linear infinite;
 }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* [추가] 텍스트 콘텐츠 스타일 (애드센스 승인용) */
+#info-content article h3 {
+    border-bottom: 2px solid #334155;
+    padding-bottom: 0.5rem;
+}
+#info-content p {
+    color: #94a3b8;
+}
